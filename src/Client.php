@@ -6,8 +6,11 @@ namespace Calipso\Sdk;
 
 use Calipso\Sdk\Configuration\ClientConfiguration;
 use Calipso\Sdk\Event\EventBuilder;
+use Calipso\Sdk\Diagnostic\DiagnosticHandlerInterface;
+use Calipso\Sdk\Delivery\SleeperInterface;
 use Calipso\Sdk\Exception\InvalidConfiguration;
 use Calipso\Sdk\Transport\TransportInterface;
+use Calipso\Sdk\Transport\ResilientTransport;
 
 final class Client
 {
@@ -17,10 +20,16 @@ final class Client
     /** @var TransportInterface|null */
     private $transport;
 
-    public function __construct(ClientConfiguration $configuration, ?TransportInterface $transport = null)
-    {
+    public function __construct(
+        ClientConfiguration $configuration,
+        ?TransportInterface $transport = null,
+        ?DiagnosticHandlerInterface $diagnostics = null,
+        ?SleeperInterface $sleeper = null
+    ) {
         $this->configuration = $configuration;
-        $this->transport = $transport;
+        $this->transport = $transport === null
+            ? null
+            : new ResilientTransport($transport, $configuration, $diagnostics, $sleeper);
     }
 
     public function configuration(): ClientConfiguration

@@ -22,8 +22,11 @@ final class ClientConfigurationTest extends TestCase
         self::assertSame($configuration, $client->configuration());
         self::assertSame('https://api.example.com', $configuration->endpoint());
         self::assertSame(TransportMode::DIRECT_HTTP, $configuration->transport()->mode());
-        self::assertSame(10.0, $configuration->transport()->requestTimeout());
-        self::assertSame(3.0, $configuration->transport()->connectTimeout());
+        self::assertSame(2.0, $configuration->transport()->requestTimeout());
+        self::assertSame(0.5, $configuration->transport()->connectTimeout());
+        self::assertSame(2, $configuration->transport()->maxAttempts());
+        self::assertSame(100, $configuration->transport()->initialBackoffMilliseconds());
+        self::assertSame(1000, $configuration->transport()->maxBackoffMilliseconds());
         self::assertSame(FailurePolicy::IGNORE, $configuration->failurePolicy());
     }
 
