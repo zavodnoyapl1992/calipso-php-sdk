@@ -24,7 +24,7 @@ Run the test suite on its own with `composer test`.
 
 ## Configuration
 
-Construct a client with an endpoint and project API key. Direct HTTP transport, a 10-second request timeout, a 3-second connect timeout, and exceptions ignore are the defaults.
+Construct a client with an endpoint and project API key. Direct HTTP transport defaults to a 2-second request timeout, a 0.5-second connect timeout, 2 maximum attempts, 100 ms initial backoff, 1000 ms maximum backoff, and ignored delivery failures.
 
 ```php
 use Calipso\Sdk\Client;
@@ -105,6 +105,24 @@ $client = new Client($configuration, $transport);
 ```
 
 Accepted, duplicate, rejected, rate-limited, server-error, and network outcomes are mapped to `DeliveryResult`. A `429` result exposes validated `retryAfterSeconds()` for bounded retry handling.
+
+## Failure policy and retries
+
+Direct delivery retries only `unavailable` outcomes. Attempts and exponential jittered backoff are bounded; permanent `rejected` outcomes are never retried. The same immutable event and event ID are reused for every attempt.
+
+```php
+$transportOptions = TransportConfiguration::directHttp(
+    5.0,  // request timeout seconds
+    1.0,  // connect timeout seconds
+    3,    // maximum attempts including the first request
+    100,  // initial backoff milliseconds
+    2000  // maximum backoff milliseconds
+);
+```
+
+`FailurePolicy::IGNORE` is the default and returns the final `DeliveryResult` without breaking business flow. `FailurePolicy::FAIL` throws a payload-free `DeliveryException` after a permanent rejection or exhausted retries. The legacy `THROW` constant remains supported as a strict-policy alias.
+
+An optional `DiagnosticHandlerInterface` may be passed to `Client`. Diagnostics expose only outcome, bounded error code, attempt counts, and retry delay; they never receive an event, credential, payload, entity ID, or HTTP body.
 
 ## License
 

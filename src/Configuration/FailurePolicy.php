@@ -6,6 +6,7 @@ namespace Calipso\Sdk\Configuration;
 
 final class FailurePolicy
 {
+    public const FAIL = 'fail';
     public const THROW = 'throw';
     public const IGNORE = 'ignore';
 
@@ -13,6 +14,11 @@ final class FailurePolicy
 
     public static function isValid(string $policy): bool
     {
-        return in_array($policy, [self::THROW, self::IGNORE], true);
+        return in_array($policy, [self::FAIL, self::THROW, self::IGNORE], true);
+    }
+
+    public static function shouldThrow(string $policy): bool
+    {
+        return $policy === self::FAIL || $policy === self::THROW;
     }
 }
