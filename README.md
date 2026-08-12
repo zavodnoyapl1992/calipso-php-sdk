@@ -24,7 +24,7 @@ Run the test suite on its own with `composer test`.
 
 ## Configuration
 
-Construct a client with an endpoint and project API key. Direct HTTP transport, a 10-second request timeout, a 3-second connect timeout, and exceptions on failure are the defaults.
+Construct a client with an endpoint and project API key. Direct HTTP transport, a 10-second request timeout, a 3-second connect timeout, and exceptions ignore are the defaults.
 
 ```php
 use Calipso\Sdk\Client;
