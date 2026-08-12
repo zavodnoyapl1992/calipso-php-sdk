@@ -30,10 +30,13 @@ Construct a client with an endpoint and project API key. Direct HTTP transport, 
 use Calipso\Sdk\Client;
 use Calipso\Sdk\Configuration\ClientConfiguration;
 
-$client = new Client(new ClientConfiguration(
+$configuration = new ClientConfiguration(
     'https://api.example.com',
     getenv('CALIPSO_API_KEY')
-));
+);
+
+// Inject a TransportInterface implementation appropriate for the application.
+$client = new Client($configuration, $transport);
 ```
 
 Transport settings and optional application metadata can be customized without coupling the SDK to a framework:
@@ -74,6 +77,20 @@ $envelopeJson = (new EventEnvelopeSerializer())->serialize($event);
 ```
 
 The envelope contains only protocol fields. Project credentials and SDK metadata are transport concerns and are never added to event payloads.
+
+The same event model is available through the fluent client API:
+
+```php
+$result = $client->event('payment.created')
+    ->entity('payment', $paymentId)
+    ->entity('customer', $customerId)
+    ->correlation($correlationId)
+    ->payload($payload)
+    ->send();
+```
+
+`Client` depends only on `TransportInterface`; application code does not construct HTTP requests or select between direct and Agent delivery.
+`send()` returns a `DeliveryResult` with an `accepted`, `duplicate`, `rejected`, `unavailable`, or `queue_full` outcome. Failure-policy and diagnostic handling can therefore evolve without changing the transport or fluent API contracts.
 
 ## License
 
