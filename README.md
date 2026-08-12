@@ -124,6 +124,16 @@ $transportOptions = TransportConfiguration::directHttp(
 
 An optional `DiagnosticHandlerInterface` may be passed to `Client`. Diagnostics expose only outcome, bounded error code, attempt counts, and retry delay; they never receive an event, credential, payload, entity ID, or HTTP body.
 
+## Explicit multi-event batches
+
+Applications that already hold multiple immutable events can submit them in materially fewer HTTP requests:
+
+```php
+$results = $client->sendBatch([$event1, $event2, $event3]);
+```
+
+Results remain in input order and contain the corresponding event IDs. Direct transport sends up to 500 events per HTTP request and deterministically chunks larger inputs. Mixed accepted, duplicate, and rejected siblings remain independent. Retry resubmits only `unavailable` items with their original event ID, timestamp, and envelope; it does not implement cross-request accumulation, a background worker, or durable storage.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
