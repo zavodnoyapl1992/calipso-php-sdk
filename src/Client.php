@@ -11,6 +11,8 @@ use Calipso\Sdk\Delivery\SleeperInterface;
 use Calipso\Sdk\Exception\InvalidConfiguration;
 use Calipso\Sdk\Transport\TransportInterface;
 use Calipso\Sdk\Transport\ResilientTransport;
+use Calipso\Sdk\Event\Event;
+use Calipso\Sdk\Delivery\DeliveryResult;
 
 final class Client
 {
@@ -44,5 +46,19 @@ final class Client
         }
 
         return new EventBuilder($this->transport, $type);
+    }
+
+    /**
+     * @param list<Event> $events
+     *
+     * @return list<DeliveryResult>
+     */
+    public function sendBatch(array $events): array
+    {
+        if (!$this->transport instanceof \Calipso\Sdk\Transport\BatchTransportInterface) {
+            throw new InvalidConfiguration('Configured transport does not support batch delivery.');
+        }
+
+        return $this->transport->sendBatch($events);
     }
 }
