@@ -1,0 +1,42 @@
+{
+    "name": "calipso/calipso-php-sdk",
+    "description": "PHP SDK for the Calipso event API.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.85",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Calipso\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Calipso\\Sdk\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --no-progress --debug",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "syntax-check": "find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l",
+        "check": [
+            "@test",
+            "@analyse",
+            "@cs-check",
+            "@syntax-check"
+        ]
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.0"
+        },
+        "sort-packages": true
+    }
+}
