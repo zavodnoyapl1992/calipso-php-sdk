@@ -23,8 +23,15 @@ final class DeliveryResult
     /** @var string|null */
     private $errorCode;
 
-    private function __construct(string $status, string $eventId, ?string $errorCode = null)
-    {
+    /** @var int|null */
+    private $retryAfterSeconds;
+
+    private function __construct(
+        string $status,
+        string $eventId,
+        ?string $errorCode = null,
+        ?int $retryAfterSeconds = null
+    ) {
         $eventId = trim($eventId);
         if ($eventId === '') {
             throw new InvalidArgumentException('Delivery result event ID must not be blank.');
@@ -33,6 +40,7 @@ final class DeliveryResult
         $this->status = $status;
         $this->eventId = $eventId;
         $this->errorCode = $errorCode;
+        $this->retryAfterSeconds = $retryAfterSeconds;
     }
 
     public static function accepted(string $eventId): self
@@ -50,9 +58,21 @@ final class DeliveryResult
         return new self(self::REJECTED, $eventId, self::validateErrorCode($errorCode));
     }
 
-    public static function unavailable(string $eventId, ?string $errorCode = null): self
-    {
-        return new self(self::UNAVAILABLE, $eventId, self::validateOptionalErrorCode($errorCode));
+    public static function unavailable(
+        string $eventId,
+        ?string $errorCode = null,
+        ?int $retryAfterSeconds = null
+    ): self {
+        if ($retryAfterSeconds !== null && $retryAfterSeconds < 1) {
+            throw new InvalidArgumentException('Retry-after seconds must be greater than zero.');
+        }
+
+        return new self(
+            self::UNAVAILABLE,
+            $eventId,
+            self::validateOptionalErrorCode($errorCode),
+            $retryAfterSeconds
+        );
     }
 
     public static function queueFull(string $eventId): self
@@ -73,6 +93,11 @@ final class DeliveryResult
     public function errorCode(): ?string
     {
         return $this->errorCode;
+    }
+
+    public function retryAfterSeconds(): ?int
+    {
+        return $this->retryAfterSeconds;
     }
 
     public function isSuccess(): bool

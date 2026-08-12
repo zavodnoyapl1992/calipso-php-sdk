@@ -92,6 +92,20 @@ $result = $client->event('payment.created')
 `Client` depends only on `TransportInterface`; application code does not construct HTTP requests or select between direct and Agent delivery.
 `send()` returns a `DeliveryResult` with an `accepted`, `duplicate`, `rejected`, `unavailable`, or `queue_full` outcome. Failure-policy and diagnostic handling can therefore evolve without changing the transport or fluent API contracts.
 
+## Direct HTTP transport
+
+`DirectHttpBatchTransport` sends every event through `POST /api/v1/events/batch`, including a single event. The included `CurlHttpClient` uses the configured connect/request timeouts. The small framework-neutral `HttpClientInterface` also allows applications to adapt their preferred PSR-compatible HTTP client without coupling the SDK core to a framework.
+
+```php
+use Calipso\Sdk\Transport\DirectHttpBatchTransport;
+use Calipso\Sdk\Http\CurlHttpClient;
+
+$transport = new DirectHttpBatchTransport($configuration, new CurlHttpClient());
+$client = new Client($configuration, $transport);
+```
+
+Accepted, duplicate, rejected, rate-limited, server-error, and network outcomes are mapped to `DeliveryResult`. A `429` result exposes validated `retryAfterSeconds()` for bounded retry handling.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
