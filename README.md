@@ -54,6 +54,27 @@ $configuration = new ClientConfiguration(
 
 API keys are excluded from configuration diagnostics. Applications should still avoid logging the value returned by `ClientConfiguration::apiKey()`.
 
+## Events
+
+Events are transport-independent immutable logical records. Their generated identity and UTC occurrence timestamp remain stable when the same instance is serialized for a retry.
+
+```php
+use Calipso\Sdk\Event\EntityReference;
+use Calipso\Sdk\Event\Event;
+use Calipso\Sdk\Event\EventEnvelopeSerializer;
+
+$event = new Event(
+    'payment.approved',
+    [new EntityReference('payment', 'pay-42')],
+    ['amount' => '125.50', 'currency' => 'EUR'],
+    'checkout-9001'
+);
+
+$envelopeJson = (new EventEnvelopeSerializer())->serialize($event);
+```
+
+The envelope contains only protocol fields. Project credentials and SDK metadata are transport concerns and are never added to event payloads.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

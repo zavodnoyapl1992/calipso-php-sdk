@@ -25,7 +25,7 @@
     "scripts": {
         "test": "phpunit",
         "analyse": "phpstan analyse --no-progress --debug",
-        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --sequential",
         "syntax-check": "find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l",
         "check": [
             "@test",
